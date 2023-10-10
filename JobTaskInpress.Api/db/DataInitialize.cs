@@ -43,7 +43,7 @@ public class DataInitialize
                 await context.SaveChangesAsync() ;
             }
 
-            if (!_dailyTaskContext.DaySummary.Any())
+            if (_dailyTaskContext.DaySummary.Any())
             {
                 List<DaySummary> daySummaries = new List<DaySummary>();
 
@@ -52,7 +52,7 @@ public class DataInitialize
                     daySummaries.Add(new DaySummary()
                     {
                         DateSummary = DateTime.Today.AddDays(i),
-                        TotalRounds =  DependencyInjection.RandomNum(),
+                        TotalRounds =  DependencyInjection.RandomNum(100, 199),
                         TotalTasks =  DependencyInjection.RandomNum() * 10,
                     });
                 }

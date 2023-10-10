@@ -25,17 +25,37 @@ public class RoundController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var _result = _roundRepository.Where()
-            .GroupBy(g => g.CreatedAt.Value)
-            .Select(x=> x.FirstOrDefault().CreatedAt.Value).Distinct().ToListAsync();
-        var list = new List<Round>();
-        var rounds = await _roundRepository.Where().GroupBy(g=>g.CreatedAt.Value)
-            .Select(grouping=> grouping.ToList()).ToListAsync();
-        foreach (var round in rounds)
-        {
-            list.Add(round.FirstOrDefault());
-        }
-        var result = new RoundListItem(list.Select(round=>round.CreatedAt.Value.ToString("yyyy-M-d dddd")).FirstOrDefault(), list.Count(), list.Count()*10);
-        return Ok(result);
+        var groupedRounds = _roundRepository.Where(null,"Tasks")
+            .GroupBy(r => r.CreatedAt.Value.Date)
+            .ToList();
+
+        var roundSummaries = groupedRounds
+            .Select(g => new RoundSummary
+            {
+                CreatedAt = g.Key,
+                RoundCount = g.Count(),
+                TotalTaskCount = g.Count() *10
+                
+            })
+            .ToList();
+
+        // foreach (var summary in roundSummaries)
+        // {
+        //     var roundTasks = groupedRounds
+        //         .Where(g => g.Key == summary.CreatedAt)
+        //         .SelectMany(g => g.Select(r => r.Tasks))
+        //         .ToList();
+        //
+        //     summary.TotalTaskCount = roundTasks.Sum(t => t.Count);
+        // }
+        
+        return Ok(roundSummaries);
     }
+}
+
+public class RoundSummary
+{
+    public DateTime? CreatedAt { get; set; }
+    public int RoundCount { get; set; }
+    public int TotalTaskCount { get; set; }
 }

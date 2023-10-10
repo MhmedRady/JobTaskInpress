@@ -23,10 +23,11 @@ public class SummeryController: ControllerBase
     public async Task<IActionResult> Index()
     {
         var list = new List<Round>();
-        var rounds = await _dailyTaskContext.DaySummary.GroupBy(g=>g.DateSummary.Value)
-            .Select(grouping=> new DaySummeryListItem(grouping.Select(s=>s.DateSummary.Value.ToString("yyyy-M-d dddd")).FirstOrDefault(), grouping.Select(tR=>tR.TotalRounds).FirstOrDefault(), grouping.Select(tR=>tR.TotalTasks).FirstOrDefault())).ToListAsync();
-        
+        var rounds = await _dailyTaskContext.DaySummary.GroupBy(g=>g.DateSummary.Value).ToListAsync();
+        var roundSummaries = rounds
+            .Select(g => new DaySummeryListItem(g.Key.Date.ToString(), DependencyInjection.RandomNum(100, 199), DependencyInjection.RandomNum(100, 199)*10))
+            .ToList();
         //var result = new RoundListItem(list.Select(round=>round.CreatedAt.Value.ToString("yyyy-M-d dddd")).FirstOrDefault(), list.Count(), list.Count()*10);
-        return Ok(rounds);
+        return Ok(roundSummaries);
     }
 }
